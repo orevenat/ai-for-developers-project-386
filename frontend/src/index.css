@@ -25,6 +25,12 @@ body {
   min-height: 100vh;
 }
 
+.event-card:hover {
+  transform: translateY(-2px);
+  --card-border: rgba(212, 124, 27, 0.35);
+  --card-shadow: 0 20px 40px rgba(24, 18, 12, 0.16);
+}
+
 h1,
 h2,
 h3,

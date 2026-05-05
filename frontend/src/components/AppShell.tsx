@@ -27,6 +27,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Group gap={10}>
                   <Image
                     src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=80&q=80"
+                    fallbackSrc="/brand-mark.svg"
                     alt={t('brand.logoAlt')}
                     h={36}
                     w={36}

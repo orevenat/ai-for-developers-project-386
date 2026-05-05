@@ -1,39 +1,23 @@
-import {
-  Badge,
-  Button,
-  Container,
-  Grid,
-  Group,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core'
+import { Badge, Button, Container, Grid, Group, Stack, Text, ThemeIcon, Title } from '@mantine/core'
 import { DatePicker } from '@mantine/dates'
 import { IconArrowRight, IconClock, IconPointFilled } from '@tabler/icons-react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ru'
 import { getEventType, listSlots } from '../lib/api/client'
 import { useAsync } from '../lib/api/hooks'
-import { SectionTitle } from '../components/SectionTitle'
+import { BookingSummaryPanel } from '../components/BookingSummaryPanel'
 import { StatusMessage } from '../components/StatusMessage'
 import { SurfaceCard } from '../components/SurfaceCard'
 import { useTranslation } from 'react-i18next'
 
-const formatDate = (value: string) =>
-  new Date(value).toLocaleString('ru-RU', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'long',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-
 export function BookEventTypePage() {
   const { t } = useTranslation()
   const { eventTypeId } = useParams()
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date())
+  const [searchParams] = useSearchParams()
+  const selectedSlotId = searchParams.get('slot')
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const eventTypeRequest = useCallback(
     () => (eventTypeId ? getEventType(eventTypeId) : Promise.reject()),
     [eventTypeId],
@@ -74,6 +58,12 @@ export function BookEventTypePage() {
       .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
   }, [selectedDateKey, slotsState.data])
 
+
+  const selectedSlot = useMemo(() => {
+    if (!selectedSlotId || !slotsState.data?.items.length) return null
+    return slotsState.data.items.find((slot) => String(slot.id) === selectedSlotId) ?? null
+  }, [selectedSlotId, slotsState.data])
+
   const availableDates = useMemo(() => {
     const set = new Set<string>()
     if (!slotsState.data?.items.length) return set
@@ -109,6 +99,10 @@ export function BookEventTypePage() {
   const selectedDateLabel = selectedDate
     ? dayjs(selectedDate).format('D MMMM, dddd')
     : t('event.selectDate')
+  const selectedTimeLabel = selectedSlot
+    ? dayjs(selectedSlot.start).format('HH:mm')
+    : t('event.selectTime')
+  const showSelectDateHint = !selectedDate
 
   if (!eventTypeId) {
     return (
@@ -129,30 +123,29 @@ export function BookEventTypePage() {
             variant="error"
           />
         ) : null}
-        {eventType ? (
-          <SurfaceCard>
-            <Stack gap="md">
-              <SectionTitle
-                overline={t('event.overline')}
-                title={eventType.name}
-                description={eventType.description}
-              />
-              <Group gap={8}>
-                <IconClock size={18} color="var(--accent-strong)" />
-                <Text size="sm" fw={600}>
-                  {t('catalog.duration', { count: eventType.duration_minutes })}
-                </Text>
-              </Group>
-            </Stack>
-          </SurfaceCard>
-        ) : null}
+        <Title order={2} className="display-font">
+          {t('event.pageTitle')}
+        </Title>
 
         <Grid gutter={24} align="start">
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            {eventType ? (
+              <BookingSummaryPanel
+                organizerName={t('catalog.organizerName')}
+                organizerRole={t('catalog.organizer')}
+                eventName={eventType.name}
+                eventDescription={eventType.description}
+                durationMinutes={eventType.duration_minutes}
+                selectedDateLabel={selectedDateLabel}
+                selectedTimeLabel={selectedTimeLabel}
+              />
+            ) : null}
+          </Grid.Col>
           <Grid.Col span={{ base: 12, md: 4 }}>
             <SurfaceCard>
               <Stack gap="md">
                 <Text fw={700} className="display-font">
-                  {t('event.slotsOverline')}
+                  {t('event.selectDateTitle')}
                 </Text>
                 <DatePicker
                   value={selectedDate}
@@ -180,18 +173,13 @@ export function BookEventTypePage() {
                   }}
                 />
                 <Text size="sm" c="var(--muted)">
-                  {t('event.slotsSubtitle')}
+                  {t('event.selectDateHelp')}
                 </Text>
               </Stack>
             </SurfaceCard>
           </Grid.Col>
-          <Grid.Col span={{ base: 12, md: 8 }}>
+          <Grid.Col span={{ base: 12, md: 4 }}>
             <Stack gap="md">
-              <SectionTitle
-                overline={t('event.slotsOverline')}
-                title={t('event.slotsTitle')}
-                description={t('event.slotsSubtitle')}
-              />
 
               {slotsState.loading ? (
                 <StatusMessage title={t('event.slotsLoading')} variant="loading" />
@@ -204,56 +192,89 @@ export function BookEventTypePage() {
                 />
               ) : null}
 
-              {!slotsState.loading && !slotsState.error && slotsForDate.length === 0 ? (
-                <StatusMessage
-                  title={t('event.slotsEmptyTitle')}
-                  description={t('event.slotsEmptyForDate', { date: selectedDateLabel })}
-                  variant="empty"
-                />
+               {!slotsState.loading && !slotsState.error && showSelectDateHint ? (
+                 <StatusMessage title={t('event.selectDateHint')} variant="empty" />
+               ) : null}
+
+               {!slotsState.loading
+               && !slotsState.error
+               && !showSelectDateHint
+               && slotsForDate.length === 0 ? (
+                 <StatusMessage
+                   title={t('event.slotsEmptyTitle')}
+                   description={t('event.slotsEmptyForDate', { date: selectedDateLabel })}
+                   variant="empty"
+                 />
               ) : null}
 
-              {!slotsState.loading && !slotsState.error && slotsForDate.length ? (
-                <SurfaceCard>
-                  <Stack gap="sm">
-                    <Text size="sm" c="var(--muted)">
-                      {t('event.slotsForDate', { date: selectedDateLabel })}
-                    </Text>
-                    {slotsForDate.map((slot) => (
-                      <Group key={slot.id} justify="space-between" align="center">
-                        <Stack gap={2}>
-                          <Text size="sm" fw={600}>
-                            {dayjs(slot.start).format('HH:mm')} – {dayjs(slot.end).format('HH:mm')}
-                          </Text>
-                          <Text size="xs" c="var(--muted)">
-                            {t('event.endsAt', { time: formatDate(slot.end) })}
-                          </Text>
-                        </Stack>
-                        <Group gap="sm">
-                          <Badge color={slot.status === 'free' ? 'green' : 'gray'}>
-                            {slot.status === 'free' ? t('event.free') : t('event.busy')}
-                          </Badge>
-                          {slot.status === 'free' ? (
-                            <Button
-                              component={Link}
-                              to={`/book/${eventTypeId}/confirm?slot=${slot.id}`}
-                              size="xs"
-                              radius="xl"
-                              color="orange"
-                              rightSection={<IconArrowRight size={14} />}
-                            >
-                              {t('event.reserve')}
-                            </Button>
-                          ) : (
-                            <Button size="xs" radius="xl" variant="light" color="gray" disabled>
-                              {t('event.unavailable')}
-                            </Button>
-                          )}
-                        </Group>
-                      </Group>
-                    ))}
-                  </Stack>
-                </SurfaceCard>
-              ) : null}
+               {!slotsState.loading && !slotsState.error && slotsForDate.length ? (
+                 <SurfaceCard>
+                   <Stack gap="md">
+                     <Text fw={700} className="display-font">
+                       {t('event.selectTimeTitle')}
+                     </Text>
+                     <Text size="sm" c="var(--muted)">
+                       {t('event.slotsForDate', { date: selectedDateLabel })}
+                     </Text>
+                     <Stack gap="xs">
+                       {slotsForDate.map((slot) => {
+                         const isSelected = selectedSlotId === String(slot.id)
+                         const isFree = slot.status === 'free'
+                         return (
+                           <Button
+                             key={slot.id}
+                             component={isFree ? Link : 'button'}
+                             to={isFree ? `/book/${eventTypeId}?slot=${slot.id}` : undefined}
+                             size="sm"
+                             radius="xl"
+                             color={isSelected ? 'dark' : isFree ? 'orange' : 'gray'}
+                             variant={isSelected ? 'filled' : 'light'}
+                             disabled={!isFree}
+                             fullWidth
+                           >
+                             <Group justify="space-between" w="100%">
+                               <Group gap={8}>
+                                 <IconClock size={16} />
+                                 <Text size="sm" fw={600}>
+                                   {dayjs(slot.start).format('HH:mm')} – {dayjs(slot.end).format('HH:mm')}
+                                 </Text>
+                               </Group>
+                               <Text size="sm" fw={600}>
+                                 {isFree ? t('event.free') : t('event.busy')}
+                               </Text>
+                             </Group>
+                           </Button>
+                         )
+                       })}
+                     </Stack>
+                     <Group justify="space-between" mt="md">
+                       <Button
+                         component={Link}
+                         to="/book"
+                         variant="subtle"
+                         radius="xl"
+                         color="orange"
+                       >
+                         {t('event.back')}
+                       </Button>
+                       <Button
+                         component={Link}
+                         to={
+                           selectedSlotId
+                             ? `/book/${eventTypeId}/confirm?slot=${selectedSlotId}`
+                             : `/book/${eventTypeId}`
+                         }
+                         radius="xl"
+                         color="orange"
+                         rightSection={<IconArrowRight size={16} />}
+                         disabled={!selectedSlotId}
+                       >
+                         {t('event.continue')}
+                       </Button>
+                     </Group>
+                   </Stack>
+                 </SurfaceCard>
+               ) : null}
             </Stack>
           </Grid.Col>
         </Grid>

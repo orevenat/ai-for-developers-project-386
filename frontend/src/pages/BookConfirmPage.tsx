@@ -1,9 +1,9 @@
-import { Button, Container, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core'
+import { Button, Container, Divider, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core'
 import { IconCheck, IconMail, IconUser } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
 import { useCallback, useMemo, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
-import { createBooking, getEventType } from '../lib/api/client'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { createBooking, getEventType, listSlots } from '../lib/api/client'
 import { useAsync } from '../lib/api/hooks'
 import { StatusMessage } from '../components/StatusMessage'
 import { useTranslation } from 'react-i18next'
@@ -20,7 +20,12 @@ export function BookConfirmPage() {
     () => (eventTypeId ? getEventType(eventTypeId) : Promise.reject()),
     [eventTypeId],
   )
+  const slotsRequest = useCallback(
+    () => (eventTypeId ? listSlots(eventTypeId) : Promise.reject()),
+    [eventTypeId],
+  )
   const eventState = useAsync(eventTypeRequest)
+  const slotsState = useAsync(slotsRequest)
 
   const form = useForm({
     initialValues: { name: '', email: '' },
@@ -34,6 +39,11 @@ export function BookConfirmPage() {
     if (!eventTypeId || !slotId) return null
     return { event_type_id: eventTypeId, slot_id: Number(slotId) }
   }, [eventTypeId, slotId])
+
+  const selectedSlot = useMemo(() => {
+    if (!slotId || !slotsState.data?.items.length) return null
+    return slotsState.data.items.find((slot) => String(slot.id) === slotId) ?? null
+  }, [slotId, slotsState.data])
 
   if (!eventTypeId || !slotId) {
     return (
@@ -96,6 +106,34 @@ export function BookConfirmPage() {
               {t('confirm.subtitle')}
             </Text>
           </Stack>
+
+          <Stack gap={6}>
+            <Group justify="space-between">
+              <Text size="sm" c="var(--muted)">
+                {t('confirm.summaryDate')}
+              </Text>
+              <Text fw={600}>{selectedSlot ? new Date(selectedSlot.start).toLocaleDateString('ru-RU') : '—'}</Text>
+            </Group>
+            <Group justify="space-between">
+              <Text size="sm" c="var(--muted)">
+                {t('confirm.summaryTime')}
+              </Text>
+              <Text fw={600}>
+                {selectedSlot
+                  ? `${new Date(selectedSlot.start).toLocaleTimeString('ru-RU', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })} – ${new Date(selectedSlot.end).toLocaleTimeString('ru-RU', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}`
+                  : '—'}
+              </Text>
+            </Group>
+          </Stack>
+
+          <Divider color="var(--border)" />
+
           <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack gap="md">
               <TextInput
@@ -117,7 +155,16 @@ export function BookConfirmPage() {
                   {error}
                 </Text>
               ) : null}
-              <Group justify="flex-end">
+              <Group justify="space-between">
+                <Button
+                  component={Link}
+                  to={`/book/${eventTypeId}?slot=${slotId}`}
+                  variant="subtle"
+                  radius="xl"
+                  color="orange"
+                >
+                  {t('confirm.back')}
+                </Button>
                 <Button type="submit" radius="xl" color="orange">
                   {t('confirm.submit')}
                 </Button>

@@ -18,7 +18,7 @@ export function SectionTitle({ icon, overline, title, description }: SectionTitl
           </Text>
         </Group>
       ) : null}
-      <Title order={2} className="display-font" fz={28}>
+      <Title order={2} className="display-font" fz={30}>
         {title}
       </Title>
       {description ? (

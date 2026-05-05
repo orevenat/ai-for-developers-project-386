@@ -1,11 +1,9 @@
-import { Container, Group, Image, SimpleGrid, Stack, Text, Title } from '@mantine/core'
-import { IconArrowRight, IconClock, IconUser } from '@tabler/icons-react'
-import { Link } from 'react-router-dom'
+import { Container, Group, Image, SimpleGrid, Stack, Text } from '@mantine/core'
 import { listEventTypes } from '../lib/api/client'
 import { useAsync } from '../lib/api/hooks'
 import { SectionTitle } from '../components/SectionTitle'
 import { StatusMessage } from '../components/StatusMessage'
-import { SurfaceCard } from '../components/SurfaceCard'
+import { EventTypeCard } from '../components/EventTypeCard'
 import { useTranslation } from 'react-i18next'
 
 export function BookCatalogPage() {
@@ -18,6 +16,7 @@ export function BookCatalogPage() {
         <Group gap="lg" align="center">
           <Image
             src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=140&q=80"
+            fallbackSrc="/organizer-avatar.svg"
             alt={t('catalog.organizerAlt')}
             h={64}
             w={64}
@@ -57,45 +56,16 @@ export function BookCatalogPage() {
         {!loading && !error && data?.items.length ? (
           <SimpleGrid cols={{ base: 1, md: 2 }} spacing={24}>
             {data.items.map((event) => (
-              <SurfaceCard key={event.id}>
-                <Stack gap="md">
-                  <Stack gap={6}>
-                    <Title order={3} className="display-font" fz={22}>
-                      {event.name}
-                    </Title>
-                    <Text size="sm" c="var(--muted)">
-                      {event.description}
-                    </Text>
-                  </Stack>
-                  <Group justify="space-between">
-                    <Group gap={6}>
-                      <IconClock size={18} color="var(--accent-strong)" />
-                      <Text size="sm" fw={600}>
-                        {t('catalog.duration', { count: event.duration_minutes })}
-                      </Text>
-                    </Group>
-                    <Group gap={6}>
-                      <IconUser size={18} color="var(--accent-strong)" />
-                      <Text size="sm" fw={600}>
-                        {t('catalog.typeLabel')}
-                      </Text>
-                    </Group>
-                  </Group>
-                  <Group justify="space-between" mt="xs">
-                    <Text size="sm" c="var(--muted)">
-                      {t('catalog.selectDate')}
-                    </Text>
-                    <Link to={`/book/${event.id}`}>
-                      <Group gap={6}>
-                        <Text size="sm" fw={600} c="var(--accent-strong)">
-                          {t('catalog.go')}
-                        </Text>
-                        <IconArrowRight size={16} color="var(--accent-strong)" />
-                      </Group>
-                    </Link>
-                  </Group>
-                </Stack>
-              </SurfaceCard>
+              <EventTypeCard
+                key={event.id}
+                id={event.id}
+                name={event.name}
+                description={event.description}
+                duration={event.duration_minutes}
+                typeLabel={t('catalog.typeLabel')}
+                selectLabel={t('catalog.selectDate')}
+                ctaLabel={t('catalog.go')}
+              />
             ))}
           </SimpleGrid>
         ) : null}
