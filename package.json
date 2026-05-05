@@ -1,0 +1,33 @@
+{
+  "name": "ai-for-developers-project-386",
+  "version": "1.0.0",
+  "description": "[![Actions Status](https://github.com/orevenat/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/orevenat/ai-for-developers-project-386/actions)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsp:compile": "tsp compile tsp/main.tsp --emit @typespec/openapi3 --output-dir tsp-output",
+    "mock:api": "npx @stoplight/prism-cli mock tsp-output/@typespec/openapi3/openapi.yaml --port 3000",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "lint:fix:frontend": "npm --prefix frontend run lint:fix",
+    "format:frontend": "npm --prefix frontend run format"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orevenat/ai-for-developers-project-386.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/orevenat/ai-for-developers-project-386/issues"
+  },
+  "homepage": "https://github.com/orevenat/ai-for-developers-project-386#readme",
+  "devDependencies": {
+    "@typespec/compiler": "^1.11.0",
+    "@typespec/openapi3": "^1.11.0"
+  }
+}

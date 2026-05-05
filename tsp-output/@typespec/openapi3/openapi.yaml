@@ -1,0 +1,794 @@
+openapi: 3.0.0
+info:
+  title: Calendar Booking API
+  version: 0.0.0
+tags: []
+paths:
+  /admin/bookings/upcoming:
+    get:
+      operationId: AdminApi_listUpcomingBookings
+      description: List upcoming bookings for all event types.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingListResult'
+  /admin/event-types:
+    post:
+      operationId: AdminApi_createEventType
+      description: Create a new event type.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          description: Invalid request or validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventTypeCreate'
+    get:
+      operationId: AdminApi_listEventTypes
+      description: List all event types.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeListResult'
+  /admin/event-types/{event_type_id}:
+    get:
+      operationId: AdminApi_getEventType
+      description: Get an event type by identifier.
+      parameters:
+        - name: event_type_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '404':
+          description: Entity not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+  /admin/schedule:
+    get:
+      operationId: AdminApi_getSchedule
+      description: Get schedule with free and busy slots for the next 14 days. If from/to are omitted, the window starts at current date.
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotListResult'
+  /admin/settings:
+    get:
+      operationId: AdminApi_getSettings
+      description: Get admin settings including owner profile and workday settings.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSettings'
+    patch:
+      operationId: AdminApi_updateSettings
+      description: Update admin settings including owner profile and workday settings.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSettings'
+        '400':
+          description: Invalid request or validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminSettingsUpdate'
+  /bookings:
+    post:
+      operationId: GuestApi_createBooking
+      description: Create a booking for the selected slot. Slot must be free and within the 14-day window. Slot time cannot overlap any existing booking across all event types.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Invalid request or validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+        '404':
+          description: Entity not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '409':
+          description: Slot already booked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictError'
+        '422':
+          description: Slot outside the 14-day booking window.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutOfWindowError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+  /event-types:
+    get:
+      operationId: GuestApi_listEventTypes
+      description: List available event types.
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeListResult'
+  /event-types/{event_type_id}:
+    get:
+      operationId: GuestApi_getEventType
+      description: Get an event type by identifier.
+      parameters:
+        - name: event_type_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '404':
+          description: Entity not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+  /slots:
+    get:
+      operationId: GuestApi_listSlots
+      description: Get slots with free/busy status within the 14-day booking window. If from/to are omitted, the window starts at current date.
+      parameters:
+        - name: event_type_id
+          in: query
+          required: true
+          schema:
+            type: string
+          explode: false
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotListResult'
+        '400':
+          description: Invalid request or validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+components:
+  schemas:
+    AdminSettings:
+      type: object
+      required:
+        - owner
+        - booking_window_days
+      properties:
+        owner:
+          $ref: '#/components/schemas/Owner'
+        booking_window_days:
+          type: integer
+          format: int32
+          description: Default booking window size in days. Fixed to 14.
+    AdminSettingsUpdate:
+      type: object
+      required:
+        - name
+        - avatar_url
+        - workday_start
+        - workday_end
+      properties:
+        name:
+          type: string
+          description: Owner display name.
+        avatar_url:
+          type: string
+          description: URL to owner avatar image.
+        workday_start:
+          type: string
+          description: Workday start time in HH:mm format.
+        workday_end:
+          type: string
+          description: Workday end time in HH:mm format.
+    BadRequestError:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          $ref: '#/components/schemas/ErrorResponse'
+      description: Invalid request or validation error.
+    Booking:
+      type: object
+      required:
+        - id
+        - event_type_id
+        - slot_id
+        - name
+        - email
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Booking identifier.
+        event_type_id:
+          type: string
+          description: Related event type identifier.
+        slot_id:
+          type: integer
+          format: int64
+          description: Related slot identifier.
+        name:
+          type: string
+          description: Guest name.
+        email:
+          type: string
+          format: email
+          description: Guest email.
+        created_at:
+          type: string
+          format: date-time
+          description: Booking creation time in ISO 8601 format.
+      description: Booking created by a guest.
+    BookingCreate:
+      type: object
+      required:
+        - event_type_id
+        - slot_id
+        - name
+        - email
+      properties:
+        event_type_id:
+          type: string
+        slot_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    BookingListResult:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Booking'
+    ConflictError:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          $ref: '#/components/schemas/ErrorResponse'
+      description: Slot already booked.
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code identifier.
+        message:
+          type: string
+          description: Human-readable error message.
+    EventType:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - duration_minutes
+      properties:
+        id:
+          type: string
+          description: Event type identifier.
+        name:
+          type: string
+          description: Event type name.
+        description:
+          type: string
+          description: Event type description.
+        duration_minutes:
+          type: integer
+          format: int32
+          description: Event duration in minutes.
+      description: Event type configuration.
+    EventTypeCreate:
+      type: object
+      required:
+        - name
+        - description
+        - duration_minutes
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        duration_minutes:
+          type: integer
+          format: int32
+    EventTypeListResult:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventType'
+      example:
+        items:
+          - id: event-15
+            name: Встреча 15 минут
+            description: Короткая встреча для быстрого обсуждения
+            duration_minutes: 15
+          - id: event-30
+            name: Встреча 30 минут
+            description: Стандартная встреча для детального обсуждения
+            duration_minutes: 30
+    NotFoundError:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          $ref: '#/components/schemas/ErrorResponse'
+      description: Entity not found.
+    OutOfWindowError:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          $ref: '#/components/schemas/ErrorResponse'
+      description: Slot outside the 14-day booking window.
+    Owner:
+      type: object
+      required:
+        - id
+        - name
+        - avatar_url
+        - workday_start
+        - workday_end
+      properties:
+        id:
+          type: string
+          description: Owner identifier.
+        name:
+          type: string
+          description: Owner display name.
+        avatar_url:
+          type: string
+          description: URL to owner avatar image.
+        workday_start:
+          type: string
+          description: Workday start time in HH:mm format.
+        workday_end:
+          type: string
+          description: Workday end time in HH:mm format.
+      description: Calendar owner profile.
+    Slot:
+      type: object
+      required:
+        - id
+        - event_type_id
+        - start
+        - end
+        - status
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Slot identifier.
+        event_type_id:
+          type: string
+          description: Related event type identifier.
+        start:
+          type: string
+          format: date-time
+          description: Slot start time in ISO 8601 format.
+        end:
+          type: string
+          format: date-time
+          description: Slot end time in ISO 8601 format.
+        status:
+          allOf:
+            - $ref: '#/components/schemas/SlotStatus'
+          description: Slot availability status.
+      description: Availability slot within the booking window.
+    SlotListResult:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Slot'
+      example:
+        items:
+          - id: 101
+            event_type_id: event-15
+            start: '2026-05-05T09:00:00Z'
+            end: '2026-05-05T09:15:00Z'
+            status: free
+          - id: 102
+            event_type_id: event-15
+            start: '2026-05-05T10:00:00Z'
+            end: '2026-05-05T10:15:00Z'
+            status: busy
+          - id: 103
+            event_type_id: event-30
+            start: '2026-05-05T11:00:00Z'
+            end: '2026-05-05T11:30:00Z'
+            status: free
+          - id: 104
+            event_type_id: event-30
+            start: '2026-05-05T13:00:00Z'
+            end: '2026-05-05T13:30:00Z'
+            status: busy
+          - id: 105
+            event_type_id: event-15
+            start: '2026-05-06T09:00:00Z'
+            end: '2026-05-06T09:15:00Z'
+            status: free
+          - id: 106
+            event_type_id: event-15
+            start: '2026-05-06T10:30:00Z'
+            end: '2026-05-06T10:45:00Z'
+            status: busy
+          - id: 107
+            event_type_id: event-30
+            start: '2026-05-06T12:00:00Z'
+            end: '2026-05-06T12:30:00Z'
+            status: free
+          - id: 108
+            event_type_id: event-30
+            start: '2026-05-06T15:00:00Z'
+            end: '2026-05-06T15:30:00Z'
+            status: busy
+          - id: 109
+            event_type_id: event-15
+            start: '2026-05-07T09:30:00Z'
+            end: '2026-05-07T09:45:00Z'
+            status: free
+          - id: 110
+            event_type_id: event-15
+            start: '2026-05-07T11:00:00Z'
+            end: '2026-05-07T11:15:00Z'
+            status: busy
+          - id: 111
+            event_type_id: event-30
+            start: '2026-05-07T14:00:00Z'
+            end: '2026-05-07T14:30:00Z'
+            status: free
+          - id: 112
+            event_type_id: event-30
+            start: '2026-05-07T16:00:00Z'
+            end: '2026-05-07T16:30:00Z'
+            status: busy
+          - id: 113
+            event_type_id: event-15
+            start: '2026-05-08T09:00:00Z'
+            end: '2026-05-08T09:15:00Z'
+            status: free
+          - id: 114
+            event_type_id: event-15
+            start: '2026-05-08T10:30:00Z'
+            end: '2026-05-08T10:45:00Z'
+            status: busy
+          - id: 115
+            event_type_id: event-30
+            start: '2026-05-08T12:00:00Z'
+            end: '2026-05-08T12:30:00Z'
+            status: free
+          - id: 116
+            event_type_id: event-30
+            start: '2026-05-08T15:00:00Z'
+            end: '2026-05-08T15:30:00Z'
+            status: busy
+          - id: 117
+            event_type_id: event-15
+            start: '2026-05-09T09:30:00Z'
+            end: '2026-05-09T09:45:00Z'
+            status: free
+          - id: 118
+            event_type_id: event-15
+            start: '2026-05-09T11:00:00Z'
+            end: '2026-05-09T11:15:00Z'
+            status: busy
+          - id: 119
+            event_type_id: event-30
+            start: '2026-05-09T14:00:00Z'
+            end: '2026-05-09T14:30:00Z'
+            status: free
+          - id: 120
+            event_type_id: event-30
+            start: '2026-05-09T16:00:00Z'
+            end: '2026-05-09T16:30:00Z'
+            status: busy
+          - id: 121
+            event_type_id: event-15
+            start: '2026-05-10T09:00:00Z'
+            end: '2026-05-10T09:15:00Z'
+            status: free
+          - id: 122
+            event_type_id: event-15
+            start: '2026-05-10T10:30:00Z'
+            end: '2026-05-10T10:45:00Z'
+            status: busy
+          - id: 123
+            event_type_id: event-30
+            start: '2026-05-10T12:00:00Z'
+            end: '2026-05-10T12:30:00Z'
+            status: free
+          - id: 124
+            event_type_id: event-30
+            start: '2026-05-10T15:00:00Z'
+            end: '2026-05-10T15:30:00Z'
+            status: busy
+          - id: 125
+            event_type_id: event-15
+            start: '2026-05-11T09:30:00Z'
+            end: '2026-05-11T09:45:00Z'
+            status: free
+          - id: 126
+            event_type_id: event-15
+            start: '2026-05-11T11:00:00Z'
+            end: '2026-05-11T11:15:00Z'
+            status: busy
+          - id: 127
+            event_type_id: event-30
+            start: '2026-05-11T14:00:00Z'
+            end: '2026-05-11T14:30:00Z'
+            status: free
+          - id: 128
+            event_type_id: event-30
+            start: '2026-05-11T16:00:00Z'
+            end: '2026-05-11T16:30:00Z'
+            status: busy
+          - id: 129
+            event_type_id: event-15
+            start: '2026-05-12T09:00:00Z'
+            end: '2026-05-12T09:15:00Z'
+            status: free
+          - id: 130
+            event_type_id: event-15
+            start: '2026-05-12T10:30:00Z'
+            end: '2026-05-12T10:45:00Z'
+            status: busy
+          - id: 131
+            event_type_id: event-30
+            start: '2026-05-12T12:00:00Z'
+            end: '2026-05-12T12:30:00Z'
+            status: free
+          - id: 132
+            event_type_id: event-30
+            start: '2026-05-12T15:00:00Z'
+            end: '2026-05-12T15:30:00Z'
+            status: busy
+          - id: 133
+            event_type_id: event-15
+            start: '2026-05-13T09:30:00Z'
+            end: '2026-05-13T09:45:00Z'
+            status: free
+          - id: 134
+            event_type_id: event-15
+            start: '2026-05-13T11:00:00Z'
+            end: '2026-05-13T11:15:00Z'
+            status: busy
+          - id: 135
+            event_type_id: event-30
+            start: '2026-05-13T14:00:00Z'
+            end: '2026-05-13T14:30:00Z'
+            status: free
+          - id: 136
+            event_type_id: event-30
+            start: '2026-05-13T16:00:00Z'
+            end: '2026-05-13T16:30:00Z'
+            status: busy
+          - id: 137
+            event_type_id: event-15
+            start: '2026-05-14T09:00:00Z'
+            end: '2026-05-14T09:15:00Z'
+            status: free
+          - id: 138
+            event_type_id: event-15
+            start: '2026-05-14T10:30:00Z'
+            end: '2026-05-14T10:45:00Z'
+            status: busy
+          - id: 139
+            event_type_id: event-30
+            start: '2026-05-14T12:00:00Z'
+            end: '2026-05-14T12:30:00Z'
+            status: free
+          - id: 140
+            event_type_id: event-30
+            start: '2026-05-14T15:00:00Z'
+            end: '2026-05-14T15:30:00Z'
+            status: busy
+          - id: 141
+            event_type_id: event-15
+            start: '2026-05-15T09:30:00Z'
+            end: '2026-05-15T09:45:00Z'
+            status: free
+          - id: 142
+            event_type_id: event-15
+            start: '2026-05-15T11:00:00Z'
+            end: '2026-05-15T11:15:00Z'
+            status: busy
+          - id: 143
+            event_type_id: event-30
+            start: '2026-05-15T14:00:00Z'
+            end: '2026-05-15T14:30:00Z'
+            status: free
+          - id: 144
+            event_type_id: event-30
+            start: '2026-05-15T16:00:00Z'
+            end: '2026-05-15T16:30:00Z'
+            status: busy
+          - id: 145
+            event_type_id: event-15
+            start: '2026-05-16T09:00:00Z'
+            end: '2026-05-16T09:15:00Z'
+            status: free
+          - id: 146
+            event_type_id: event-15
+            start: '2026-05-16T10:30:00Z'
+            end: '2026-05-16T10:45:00Z'
+            status: busy
+          - id: 147
+            event_type_id: event-30
+            start: '2026-05-16T12:00:00Z'
+            end: '2026-05-16T12:30:00Z'
+            status: free
+          - id: 148
+            event_type_id: event-30
+            start: '2026-05-16T15:00:00Z'
+            end: '2026-05-16T15:30:00Z'
+            status: busy
+          - id: 149
+            event_type_id: event-15
+            start: '2026-05-17T09:30:00Z'
+            end: '2026-05-17T09:45:00Z'
+            status: free
+          - id: 150
+            event_type_id: event-15
+            start: '2026-05-17T11:00:00Z'
+            end: '2026-05-17T11:15:00Z'
+            status: busy
+          - id: 151
+            event_type_id: event-30
+            start: '2026-05-17T14:00:00Z'
+            end: '2026-05-17T14:30:00Z'
+            status: free
+          - id: 152
+            event_type_id: event-30
+            start: '2026-05-17T16:00:00Z'
+            end: '2026-05-17T16:30:00Z'
+            status: busy
+          - id: 153
+            event_type_id: event-15
+            start: '2026-05-18T09:00:00Z'
+            end: '2026-05-18T09:15:00Z'
+            status: free
+          - id: 154
+            event_type_id: event-15
+            start: '2026-05-18T10:30:00Z'
+            end: '2026-05-18T10:45:00Z'
+            status: busy
+          - id: 155
+            event_type_id: event-30
+            start: '2026-05-18T12:00:00Z'
+            end: '2026-05-18T12:30:00Z'
+            status: free
+          - id: 156
+            event_type_id: event-30
+            start: '2026-05-18T15:00:00Z'
+            end: '2026-05-18T15:30:00Z'
+            status: busy
+    SlotStatus:
+      type: string
+      enum:
+        - free
+        - busy
+servers:
+  - url: https://api.example.com
+    description: Production
+    variables: {}

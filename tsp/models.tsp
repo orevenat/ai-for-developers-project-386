@@ -80,9 +80,6 @@ model Booking {
   @format("email")
   email: string;
 
-  @doc("Guest time zone in IANA format.")
-  time_zone: string;
-
   @doc("Booking creation time in ISO 8601 format.")
   @format("date-time")
   created_at: string;
