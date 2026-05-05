@@ -1,0 +1,11 @@
+event_15:
+  id: "event-15"
+  name: "Встреча 15 минут"
+  description: "Короткая встреча для быстрого обсуждения"
+  duration_minutes: 15
+
+event_30:
+  id: "event-30"
+  name: "Встреча 30 минут"
+  description: "Стандартная встреча для детального обсуждения"
+  duration_minutes: 30

@@ -1,0 +1,9 @@
+booking_one:
+  id: "booking-1"
+  event_type_id: "event-30"
+  slot_id: <%= SlotAvailabilityService.send(:deterministic_slot_id, "event-30", Time.zone.now.beginning_of_day + 10.hours, Time.zone.now.beginning_of_day + 10.hours + 30.minutes) %>
+  slot_start: <%= Time.zone.now.beginning_of_day + 10.hours %>
+  slot_end: <%= Time.zone.now.beginning_of_day + 10.hours + 30.minutes %>
+  name: "Existing Guest"
+  email: "guest@example.com"
+  created_at: <%= Time.zone.now %>

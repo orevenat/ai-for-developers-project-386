@@ -1,0 +1,5 @@
+default:
+  name: "Calendar Owner"
+  avatar_url: "https://example.com/avatar.png"
+  workday_start: "09:00"
+  workday_end: "17:00"
