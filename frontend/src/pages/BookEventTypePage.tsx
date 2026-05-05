@@ -1,4 +1,4 @@
-import { Badge, Button, Container, Grid, Group, Stack, Text, ThemeIcon, Title } from '@mantine/core'
+import { Button, Container, Grid, Group, Stack, Text, ThemeIcon, Title } from '@mantine/core'
 import { DatePicker } from '@mantine/dates'
 import { IconArrowRight, IconClock, IconPointFilled } from '@tabler/icons-react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
@@ -127,7 +127,7 @@ export function BookEventTypePage() {
           {t('event.pageTitle')}
         </Title>
 
-        <Grid gutter={24} align="start">
+        <Grid gap={24} align="start">
           <Grid.Col span={{ base: 12, md: 4 }}>
             {eventType ? (
               <BookingSummaryPanel
@@ -220,31 +220,52 @@ export function BookEventTypePage() {
                        {slotsForDate.map((slot) => {
                          const isSelected = selectedSlotId === String(slot.id)
                          const isFree = slot.status === 'free'
-                         return (
-                           <Button
-                             key={slot.id}
-                             component={isFree ? Link : 'button'}
-                             to={isFree ? `/book/${eventTypeId}?slot=${slot.id}` : undefined}
-                             size="sm"
-                             radius="xl"
-                             color={isSelected ? 'dark' : isFree ? 'orange' : 'gray'}
-                             variant={isSelected ? 'filled' : 'light'}
-                             disabled={!isFree}
-                             fullWidth
-                           >
-                             <Group justify="space-between" w="100%">
-                               <Group gap={8}>
-                                 <IconClock size={16} />
-                                 <Text size="sm" fw={600}>
-                                   {dayjs(slot.start).format('HH:mm')} – {dayjs(slot.end).format('HH:mm')}
-                                 </Text>
-                               </Group>
-                               <Text size="sm" fw={600}>
-                                 {isFree ? t('event.free') : t('event.busy')}
-                               </Text>
-                             </Group>
-                           </Button>
-                         )
+                          return isFree ? (
+                            <Button
+                              key={slot.id}
+                              component={Link}
+                              to={`/book/${eventTypeId}?slot=${slot.id}`}
+                              size="sm"
+                              radius="xl"
+                              color={isSelected ? 'dark' : 'orange'}
+                              variant={isSelected ? 'filled' : 'light'}
+                              fullWidth
+                            >
+                              <Group justify="space-between" w="100%">
+                                <Group gap={8}>
+                                  <IconClock size={16} />
+                                  <Text size="sm" fw={600}>
+                                    {dayjs(slot.start).format('HH:mm')} – {dayjs(slot.end).format('HH:mm')}
+                                  </Text>
+                                </Group>
+                                <Text size="sm" fw={600}>
+                                  {t('event.free')}
+                                </Text>
+                              </Group>
+                            </Button>
+                          ) : (
+                            <Button
+                              key={slot.id}
+                              size="sm"
+                              radius="xl"
+                              color="gray"
+                              variant="light"
+                              disabled
+                              fullWidth
+                            >
+                              <Group justify="space-between" w="100%">
+                                <Group gap={8}>
+                                  <IconClock size={16} />
+                                  <Text size="sm" fw={600}>
+                                    {dayjs(slot.start).format('HH:mm')} – {dayjs(slot.end).format('HH:mm')}
+                                  </Text>
+                                </Group>
+                                <Text size="sm" fw={600}>
+                                  {t('event.busy')}
+                                </Text>
+                              </Group>
+                            </Button>
+                          )
                        })}
                      </Stack>
                      <Group justify="space-between" mt="md">
