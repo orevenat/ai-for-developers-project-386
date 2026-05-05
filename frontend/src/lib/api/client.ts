@@ -67,7 +67,7 @@ export async function listSlots(
 
 export async function createBooking(input: {
   event_type_id: string
-  slot_id: number
+  slot_id: string
   name: string
   email: string
 }): Promise<Booking> {

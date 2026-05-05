@@ -32,7 +32,7 @@
 ## Архитектура теста
 - Размещение Playwright-конфигурации в корне репозитория.
 - `webServer` поднимает два процесса:
-  - Backend: `RAILS_ENV=test mise exec -- bundle exec rails s -p 3000`.
+  - Backend: `RAILS_ENV=test bundle exec rails s -p 3000`.
   - Frontend: `VITE_API_BASE_URL=http://localhost:3000 npm --prefix frontend run dev -- --host --port 5173`.
 - Перед запуском тестов выполняется подготовка данных:
   - очистка тестовой БД через `RAILS_ENV=test bin/rails db:reset`.

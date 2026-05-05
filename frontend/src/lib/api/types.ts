@@ -8,7 +8,7 @@ export type EventType = {
 export type SlotStatus = 'free' | 'busy'
 
 export type Slot = {
-  id: number
+  id: string
   event_type_id: string
   start: string
   end: string
@@ -18,7 +18,7 @@ export type Slot = {
 export type Booking = {
   id: string
   event_type_id: string
-  slot_id: number
+  slot_id: string
   name: string
   email: string
   created_at: string

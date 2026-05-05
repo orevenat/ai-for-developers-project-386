@@ -37,7 +37,7 @@ export function BookConfirmPage() {
 
   const bookingPayload = useMemo(() => {
     if (!eventTypeId || !slotId) return null
-    return { event_type_id: eventTypeId, slot_id: Number(slotId) }
+    return { event_type_id: eventTypeId, slot_id: slotId }
   }, [eventTypeId, slotId])
 
   const selectedSlot = useMemo(() => {

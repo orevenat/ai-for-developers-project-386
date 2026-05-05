@@ -46,7 +46,7 @@ class SlotAvailabilityService
     end
 
     def booking_range(from: nil, to: nil)
-      window_start = Time.zone.now.beginning_of_day
+      window_start = Time.zone.today.beginning_of_day
       window_end = (window_start + BOOKING_WINDOW_DAYS.days).end_of_day
 
       return window_start..window_end if from.nil? && to.nil?
@@ -105,7 +105,7 @@ class SlotAvailabilityService
 
     def slot_payload(event_type:, start_time:, end_time:)
       {
-        id: deterministic_slot_id(event_type.id, start_time, end_time),
+        id: deterministic_slot_id(event_type.id, start_time, end_time).to_s,
         event_type_id: event_type.id,
         start: start_time.iso8601,
         end: end_time.iso8601,
