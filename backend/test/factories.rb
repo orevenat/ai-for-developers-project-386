@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :booking do
     event_type_id { "event-15" }
-    slot_id { 1 }
+    slot_id { "1" }
     name { "New Guest" }
     email { "new-guest@example.com" }
   end

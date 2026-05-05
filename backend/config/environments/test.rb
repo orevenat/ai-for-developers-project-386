@@ -41,6 +41,7 @@ Rails.application.configure do
 
   config.hosts << "localhost"
   config.hosts << "127.0.0.1"
+  config.hosts << "www.example.com"
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr

@@ -21,7 +21,7 @@ module Guest
       {
         id: booking.id,
         event_type_id: booking.event_type_id,
-        slot_id: booking.slot_id,
+        slot_id: booking.slot_id.to_s,
         name: booking.name,
         email: booking.email,
         created_at: booking.created_at.iso8601

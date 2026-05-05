@@ -9,7 +9,7 @@ class GuestBookingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     body = response.parsed_body
-    assert_equal slot_id, body.fetch("slot_id")
+    assert_equal slot_id.to_s, body.fetch("slot_id")
   end
 
   test "rejects booked slot" do

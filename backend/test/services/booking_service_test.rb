@@ -12,7 +12,7 @@ class BookingServiceTest < ActiveSupport::TestCase
       email: "new-guest@example.com"
     )
 
-    assert_equal slot_id, booking.slot_id
+    assert_equal slot_id.to_i, booking.slot_id
   end
 
   test "rejects overlapping booking" do
