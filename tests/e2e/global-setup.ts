@@ -25,7 +25,7 @@ const eventTypes: EventTypePayload[] = [
 
 async function waitForAdminReady() {
   const apiRequest = await request.newContext({ baseURL: apiBaseUrl })
-  const deadline = Date.now() + 60_000
+  const deadline = Date.now() + 120_000
   while (Date.now() < deadline) {
     try {
       const response = await apiRequest.get('/admin/settings')

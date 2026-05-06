@@ -2,7 +2,7 @@ require "test_helper"
 
 class AdminScheduleControllerTest < ActionDispatch::IntegrationTest
   test "lists schedule" do
-    get "/admin/schedule"
+    get "/api/admin/schedule"
 
     assert_response :ok
     body = response.parsed_body

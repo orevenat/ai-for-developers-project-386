@@ -2,7 +2,7 @@ require "test_helper"
 
 class AdminEventTypesControllerTest < ActionDispatch::IntegrationTest
   test "lists event types" do
-    get "/admin/event-types"
+    get "/api/admin/event-types"
 
     assert_response :ok
     body = response.parsed_body
@@ -10,7 +10,7 @@ class AdminEventTypesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "creates event type" do
-    post "/admin/event-types", params: attributes_for(:event_type)
+    post "/api/admin/event-types", params: attributes_for(:event_type)
 
     assert_response :ok
     body = response.parsed_body
@@ -18,7 +18,7 @@ class AdminEventTypesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "shows event type" do
-    get "/admin/event-types/event-30"
+    get "/api/admin/event-types/event-30"
 
     assert_response :ok
     body = response.parsed_body

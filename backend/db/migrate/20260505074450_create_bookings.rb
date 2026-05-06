@@ -13,6 +13,5 @@ class CreateBookings < ActiveRecord::Migration[8.1]
 
     add_index :bookings, :slot_id, unique: true
     add_index :bookings, %i[slot_start slot_end]
-
   end
 end

@@ -2,7 +2,7 @@ require "test_helper"
 
 class AdminSettingsControllerTest < ActionDispatch::IntegrationTest
   test "shows settings" do
-    get "/admin/settings"
+    get "/api/admin/settings"
 
     assert_response :ok
     body = response.parsed_body
@@ -10,7 +10,7 @@ class AdminSettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "updates settings" do
-    patch "/admin/settings", params: { name: "New Name" }
+    patch "/api/admin/settings", params: { name: "New Name" }
 
     assert_response :ok
     body = response.parsed_body

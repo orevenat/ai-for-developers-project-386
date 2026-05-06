@@ -5,7 +5,7 @@ class GuestBookingsControllerTest < ActionDispatch::IntegrationTest
     event_type = event_types(:event_15)
     slot_id = SlotAvailabilityService.list_slots(event_type:).fetch(:items).first.fetch(:id)
 
-    post "/bookings", params: attributes_for(:booking, event_type_id: event_type.id, slot_id: slot_id)
+    post "/api/bookings", params: attributes_for(:booking, event_type_id: event_type.id, slot_id: slot_id)
 
     assert_response :ok
     body = response.parsed_body
@@ -17,7 +17,7 @@ class GuestBookingsControllerTest < ActionDispatch::IntegrationTest
     booking = bookings(:booking_one)
     slot_id = SlotAvailabilityService.send(:deterministic_slot_id, event_type.id, booking.slot_start, booking.slot_end)
 
-    post "/bookings", params: attributes_for(:booking, event_type_id: event_type.id, slot_id: slot_id)
+    post "/api/bookings", params: attributes_for(:booking, event_type_id: event_type.id, slot_id: slot_id)
 
     assert_response :conflict
   end

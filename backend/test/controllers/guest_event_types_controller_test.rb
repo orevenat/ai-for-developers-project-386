@@ -2,7 +2,7 @@ require "test_helper"
 
 class GuestEventTypesControllerTest < ActionDispatch::IntegrationTest
   test "lists event types" do
-    get "/event-types"
+    get "/api/event-types"
 
     assert_response :ok
     body = response.parsed_body
@@ -10,7 +10,7 @@ class GuestEventTypesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "shows event type" do
-    get "/event-types/event-15"
+    get "/api/event-types/event-15"
 
     assert_response :ok
     body = response.parsed_body
