@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_05_074450) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_07_090000) do
   create_table "bookings", id: :string, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -19,10 +19,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_05_074450) do
     t.datetime "slot_end", null: false
     t.integer "slot_id", null: false
     t.datetime "slot_start", null: false
+    t.string "status", default: "active", null: false
     t.datetime "updated_at", null: false
     t.index ["event_type_id"], name: "index_bookings_on_event_type_id"
     t.index ["slot_id"], name: "index_bookings_on_slot_id", unique: true
     t.index ["slot_start", "slot_end"], name: "index_bookings_on_slot_start_and_slot_end"
+    t.index ["status"], name: "index_bookings_on_status"
   end
 
   create_table "event_types", id: :string, force: :cascade do |t|

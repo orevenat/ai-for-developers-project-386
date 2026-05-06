@@ -13,6 +13,7 @@ test('guest booking flow', async ({ page }) => {
   await freeSlot.click()
 
   await expect(page).toHaveURL(/\?slot=/)
+  const slotId = new URL(page.url()).searchParams.get('slot')
 
   await page.getByRole('link', { name: 'Продолжить' }).click()
 
@@ -24,4 +25,18 @@ test('guest booking flow', async ({ page }) => {
   await page.getByRole('button', { name: 'Подтвердить запись' }).click()
 
   await expect(page.getByText('Бронирование подтверждено')).toBeVisible({ timeout: 20_000 })
+
+  await page.goto('/admin')
+  await expect(page.getByRole('cell', { name: 'Отменен' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Отменить' }).first().click()
+  await expect(page.getByRole('cell', { name: 'Отменен' })).toBeVisible({ timeout: 10_000 })
+
+  await page.goto('/book')
+  await page.getByRole('link', { name: /Встреча 15 минут/ }).click()
+  await expect(page).toHaveURL(/\/book\//)
+
+  if (slotId) {
+    await page.goto(`/book/event-15?slot=${slotId}`)
+    await expect(page).toHaveURL(new RegExp(`\\?slot=${slotId}`))
+  }
 })

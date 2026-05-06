@@ -24,6 +24,20 @@ export type Booking = {
   created_at: string
 }
 
+export type BookingStatus = 'active' | 'cancelled'
+
+export type AdminBooking = {
+  id: string
+  event_type_id: string
+  event_type_name: string
+  slot_id: string
+  slot_start: string
+  name: string
+  email: string
+  created_at: string
+  status: BookingStatus
+}
+
 export type Owner = {
   id: string
   name: string
@@ -57,4 +71,8 @@ export type SlotListResult = {
 
 export type BookingListResult = {
   items: Booking[]
+}
+
+export type AdminBookingListResult = {
+  items: AdminBooking[]
 }

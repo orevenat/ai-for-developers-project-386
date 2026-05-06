@@ -62,6 +62,12 @@ enum SlotStatus {
   busy,
 }
 
+@doc("Booking status.")
+enum BookingStatus {
+  active,
+  cancelled,
+}
+
 @doc("Booking created by a guest.")
 model Booking {
   @doc("Booking identifier.")
@@ -83,4 +89,37 @@ model Booking {
   @doc("Booking creation time in ISO 8601 format.")
   @format("date-time")
   created_at: string;
+}
+
+@doc("Booking summary for admin usage.")
+model AdminBooking {
+  @doc("Booking identifier.")
+  id: string;
+
+  @doc("Related event type identifier.")
+  event_type_id: string;
+
+  @doc("Event type name.")
+  event_type_name: string;
+
+  @doc("Related slot identifier.")
+  slot_id: int64;
+
+  @doc("Slot start time in ISO 8601 format.")
+  @format("date-time")
+  slot_start: string;
+
+  @doc("Guest name.")
+  name: string;
+
+  @doc("Guest email.")
+  @format("email")
+  email: string;
+
+  @doc("Booking creation time in ISO 8601 format.")
+  @format("date-time")
+  created_at: string;
+
+  @doc("Booking status.")
+  status: BookingStatus;
 }

@@ -6,4 +6,5 @@ booking_one:
   slot_end: <%= Time.zone.now.beginning_of_day + 1.day + 10.hours + 30.minutes %>
   name: "Existing Guest"
   email: "guest@example.com"
+  status: "active"
   created_at: <%= Time.zone.now %>

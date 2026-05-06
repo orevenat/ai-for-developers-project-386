@@ -100,7 +100,9 @@ class SlotAvailabilityService
     end
 
     def slot_busy?(start_time, end_time)
-      Booking.where("slot_start < ? AND slot_end > ?", end_time, start_time).exists?
+      Booking.where(status: "active")
+        .where("slot_start < ? AND slot_end > ?", end_time, start_time)
+        .exists?
     end
 
     def slot_payload(event_type:, start_time:, end_time:)

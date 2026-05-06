@@ -14,6 +14,9 @@ Rails.application.routes.draw do
         collection do
           get :upcoming
         end
+        member do
+          post :cancel
+        end
       end
       resources :schedule, only: %i[index]
       resource :settings, only: %i[show update]

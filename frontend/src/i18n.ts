@@ -116,7 +116,14 @@ i18n.use(initReactI18next).init({
             event: 'Событие',
             guest: 'Гость',
             email: 'Email',
-            created: 'Создано',
+            meeting: 'Время встречи',
+            status: 'Статус',
+            actions: 'Действия',
+          },
+          cancel: 'Отменить',
+          status: {
+            active: 'Активно',
+            cancelled: 'Отменен',
           },
         },
         schedule: {

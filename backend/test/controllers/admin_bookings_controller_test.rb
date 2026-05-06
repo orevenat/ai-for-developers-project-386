@@ -7,5 +7,9 @@ class AdminBookingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
     body = response.parsed_body
     assert body.fetch("items").any?
+    item = body.fetch("items").first
+    assert item.key?("event_type_name")
+    assert item.key?("slot_start")
+    assert item.key?("status")
   end
 end

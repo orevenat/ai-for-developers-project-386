@@ -1,8 +1,9 @@
 import type {
   AdminSettings,
   ApiError,
+  AdminBooking,
+  AdminBookingListResult,
   Booking,
-  BookingListResult,
   EventType,
   EventTypeListResult,
   SlotListResult,
@@ -79,9 +80,16 @@ export async function createBooking(input: {
   return handleResponse<Booking>(response)
 }
 
-export async function listUpcomingBookings(): Promise<BookingListResult> {
+export async function listUpcomingBookings(): Promise<AdminBookingListResult> {
   const response = await safeFetch(`${baseUrl}/admin/bookings/upcoming`)
-  return handleResponse<BookingListResult>(response)
+  return handleResponse<AdminBookingListResult>(response)
+}
+
+export async function cancelAdminBooking(bookingId: string): Promise<AdminBooking> {
+  const response = await safeFetch(`${baseUrl}/admin/bookings/${bookingId}/cancel`, {
+    method: 'POST',
+  })
+  return handleResponse<AdminBooking>(response)
 }
 
 export async function listAdminSchedule(from?: string, to?: string): Promise<SlotListResult> {

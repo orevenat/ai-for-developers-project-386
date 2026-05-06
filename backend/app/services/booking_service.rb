@@ -31,7 +31,9 @@ class BookingService
     private
 
     def overlapping_booking?(start_time, end_time)
-      Booking.where("slot_start < ? AND slot_end > ?", end_time, start_time).exists?
+      Booking.where(status: "active")
+        .where("slot_start < ? AND slot_end > ?", end_time, start_time)
+        .exists?
     end
   end
 end

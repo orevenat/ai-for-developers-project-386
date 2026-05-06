@@ -30,7 +30,12 @@ interface AdminApi {
   @doc("List upcoming bookings for all event types.")
   @get
   @route("/bookings/upcoming")
-  listUpcomingBookings(): BookingListResult;
+  listUpcomingBookings(): AdminBookingListResult;
+
+  @doc("Cancel a booking and free its slot.")
+  @post
+  @route("/bookings/{booking_id}/cancel")
+  cancelBooking(@path booking_id: string): AdminBooking | NotFoundError;
 
   @doc("Get schedule with free and busy slots for the next 14 days. If from/to are omitted, the window starts at current date.")
   @get
@@ -111,6 +116,10 @@ model EventTypeListResult {
 
 model BookingListResult {
   items: Booking[];
+}
+
+model AdminBookingListResult {
+  items: AdminBooking[];
 }
 
 @example(#{
