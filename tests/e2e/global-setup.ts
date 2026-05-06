@@ -8,6 +8,7 @@ type EventTypePayload = {
 }
 
 const adminUrl = 'http://localhost:5173/admin/settings'
+const apiBaseUrl = 'http://localhost:3000/api'
 
 const eventTypes: EventTypePayload[] = [
   {
@@ -23,7 +24,7 @@ const eventTypes: EventTypePayload[] = [
 ]
 
 async function waitForAdminReady() {
-  const apiRequest = await request.newContext({ baseURL: 'http://localhost:3000' })
+  const apiRequest = await request.newContext({ baseURL: apiBaseUrl })
   const deadline = Date.now() + 60_000
   while (Date.now() < deadline) {
     try {
@@ -69,7 +70,7 @@ export default async function globalSetup(_config: FullConfig) {
 
   await page.waitForTimeout(1000)
 
-  const listResponse = await page.request.get('http://localhost:3000/admin/event-types')
+  const listResponse = await page.request.get(`${apiBaseUrl}/admin/event-types`)
   const payload = await listResponse.json()
   if (!Array.isArray(payload.items) || payload.items.length < eventTypes.length) {
     throw new Error(`Admin event types were not created by UI setup: ${JSON.stringify(payload)}`)

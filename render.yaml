@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ai-for-developers-project-386
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false

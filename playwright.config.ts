@@ -23,7 +23,7 @@ export default defineConfig({
       timeout: webServerTimeout,
     },
     {
-      command: 'VITE_API_BASE_URL=http://localhost:3000 npm --prefix frontend run dev -- --host --port 5173',
+      command: 'VITE_API_BASE_URL=/api npm --prefix frontend run dev -- --host --port 5173',
       url: 'http://localhost:5173',
       reuseExistingServer: !process.env.CI,
       timeout: webServerTimeout,

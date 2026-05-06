@@ -1,20 +1,22 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
-  scope module: :guest do
-    resources :event_types, path: "event-types", param: :event_type_id, only: %i[index show]
-    resources :slots, only: %i[index]
-    resources :bookings, only: %i[create]
-  end
-
-  namespace :admin do
-    resources :event_types, path: "event-types", param: :event_type_id, only: %i[index show create]
-    resources :bookings, only: [] do
-      collection do
-        get :upcoming
-      end
+  scope :api do
+    scope module: :guest do
+      resources :event_types, path: "event-types", param: :event_type_id, only: %i[index show]
+      resources :slots, only: %i[index]
+      resources :bookings, only: %i[create]
     end
-    resources :schedule, only: %i[index]
-    resource :settings, only: %i[show update]
+
+    namespace :admin do
+      resources :event_types, path: "event-types", param: :event_type_id, only: %i[index show create]
+      resources :bookings, only: [] do
+        collection do
+          get :upcoming
+        end
+      end
+      resources :schedule, only: %i[index]
+      resource :settings, only: %i[show update]
+    end
   end
 end

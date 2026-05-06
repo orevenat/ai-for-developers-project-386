@@ -1,0 +1,12 @@
+#!/bin/bash -e
+
+PORT=${PORT:-3000}
+INTERNAL_PORT=${INTERNAL_PORT:-3000}
+
+envsubst '${PORT} ${INTERNAL_PORT}' \
+  < ./config/nginx.conf.template \
+  > /etc/nginx/conf.d/default.conf
+
+PORT="${INTERNAL_PORT}" ./bin/rails server -b 0.0.0.0 -p "${INTERNAL_PORT}" &
+
+exec nginx -g 'daemon off;'
