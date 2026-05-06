@@ -11,7 +11,10 @@ import type {
 
 const DEFAULT_BASE_URL = '/api'
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || DEFAULT_BASE_URL
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || DEFAULT_BASE_URL
+const baseUrl = rawBaseUrl.endsWith('/api')
+  ? rawBaseUrl.replace(/\/$/, '')
+  : `${rawBaseUrl.replace(/\/$/, '')}/api`
 
 async function parseJson<T>(response: Response): Promise<T> {
   return (await response.json()) as T
@@ -30,9 +33,16 @@ async function handleResponse<T>(response: Response): Promise<T> {
   throw { status: response.status, body } satisfies ApiError
 }
 
+function normalizeUrl(input: RequestInfo | URL): RequestInfo | URL {
+  if (typeof input !== 'string') return input
+  if (input.startsWith('http://') || input.startsWith('https://')) return input
+  if (input.startsWith('/')) return `/api${input}`
+  return `/api/${input}`
+}
+
 async function safeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   try {
-    return await fetch(input, init)
+    return await fetch(normalizeUrl(input), init)
   } catch {
     return new Response(
       JSON.stringify({

@@ -5,7 +5,7 @@ test('guest booking flow', async ({ page }) => {
   await page.getByRole('link', { name: 'Записаться' }).first().click()
   await expect(page).toHaveURL(/\/book$/)
 
-  await page.getByRole('link', { name: /Встреча 15 минут/ }).click()
+  await page.getByRole('link', { name: /Встреча 15 минут/ }).first().click()
   await expect(page).toHaveURL(/\/book\//)
 
   const freeSlot = page.getByRole('link', { name: /Свободно/ }).first()
@@ -32,7 +32,7 @@ test('guest booking flow', async ({ page }) => {
   await expect(page.getByRole('cell', { name: 'Отменен' })).toBeVisible({ timeout: 10_000 })
 
   await page.goto('/book')
-  await page.getByRole('link', { name: /Встреча 15 минут/ }).click()
+  await page.getByRole('link', { name: /Встреча 15 минут/ }).first().click()
   await expect(page).toHaveURL(/\/book\//)
 
   if (slotId) {

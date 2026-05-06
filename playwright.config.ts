@@ -16,7 +16,7 @@ export default defineConfig({
   webServer: [
     {
       command:
-        'RAILS_ENV=test SKIP_EVENT_TYPES=1 bundle exec rails db:reset && RAILS_ENV=test SKIP_EVENT_TYPES=1 bundle exec rails db:migrate && RAILS_ENV=test SKIP_EVENT_TYPES=1 bundle exec rails db:seed && RAILS_ENV=test SKIP_EVENT_TYPES=1 bundle exec rails s -p 3000',
+        'RAILS_ENV=test SKIP_EVENT_TYPES=1 bundle exec rails db:reset && RAILS_ENV=test SKIP_EVENT_TYPES=1 bundle exec rails db:migrate && RAILS_ENV=test SKIP_EVENT_TYPES=1 bundle exec rails db:seed && RAILS_ENV=test SKIP_EVENT_TYPES=1 bundle exec rails s -p 3000 -e test',
       cwd: 'backend',
       url: 'http://localhost:3000/up',
       reuseExistingServer: !process.env.CI,

@@ -1,22 +1,25 @@
 import type { FullConfig } from '@playwright/test'
-import { request, chromium, type Page } from '@playwright/test'
+import { request } from '@playwright/test'
 
 type EventTypePayload = {
+  id: string
   name: string
   description: string
   duration_minutes: number
 }
 
-const adminUrl = 'http://localhost:5173/admin/settings'
-const apiBaseUrl = 'http://localhost:3000/api'
+const adminApiUrl = 'http://localhost:3000'
+const apiBaseUrl = 'http://localhost:3000'
 
 const eventTypes: EventTypePayload[] = [
   {
+    id: 'event-15',
     name: 'Встреча 15 минут',
     description: 'Короткая встреча для быстрого обсуждения',
     duration_minutes: 15,
   },
   {
+    id: 'event-30',
     name: 'Встреча 30 минут',
     description: 'Стандартная встреча для детального обсуждения',
     duration_minutes: 30,
@@ -28,7 +31,7 @@ async function waitForAdminReady() {
   const deadline = Date.now() + 120_000
   while (Date.now() < deadline) {
     try {
-      const response = await apiRequest.get('/admin/settings')
+      const response = await apiRequest.get('/api/admin/settings')
       if (response.ok()) {
         await apiRequest.dispose()
         return
@@ -42,39 +45,46 @@ async function waitForAdminReady() {
   throw new Error('Admin settings API did not become ready in time')
 }
 
-async function createEventType(page: Page, payload: EventTypePayload) {
-  const form = page
-    .getByRole('heading', { name: 'Создание типа события' })
-    .locator('..')
-    .locator('form')
-  await form.getByLabel('Имя').fill(payload.name)
-  await form.getByLabel('Описание').fill(payload.description)
-  await form.getByLabel('Длительность, мин').fill(String(payload.duration_minutes))
-  await form.getByRole('button', { name: 'Создать тип события' }).click()
-  await form.getByLabel('Имя').waitFor({ timeout: 10_000 })
+async function createEventType(payload: EventTypePayload) {
+  const apiRequest = await request.newContext({ baseURL: adminApiUrl })
+  const response = await apiRequest.post('/api/admin/event-types', {
+    data: payload,
+  })
+  if (!response.ok()) {
+    const message = await response.text()
+    await apiRequest.dispose()
+    throw new Error(`Failed to create admin event type: ${response.status()} ${message}`)
+  }
+  await apiRequest.dispose()
+}
+
+async function listAdminEventTypeIds() {
+  const listContext = await request.newContext({ baseURL: apiBaseUrl })
+  const listResponse = await listContext.get('/api/admin/event-types')
+  const payload = await listResponse.json()
+  await listContext.dispose()
+  const ids = Array.isArray(payload.items) ? payload.items.map((item: { id: string }) => item.id) : []
+  return new Set(ids)
 }
 
 export default async function globalSetup(_config: FullConfig) {
   await waitForAdminReady()
 
-  const browser = await chromium.launch()
-  const page = await browser.newPage()
-
-  await page.goto(adminUrl, { waitUntil: 'domcontentloaded' })
-  await page.getByRole('heading', { name: 'Создание типа события' }).waitFor({ timeout: 20_000 })
-
+  const existingIds = await listAdminEventTypeIds()
   for (const eventType of eventTypes) {
-    await createEventType(page, eventType)
-    await page.waitForTimeout(1500)
+    if (!existingIds.has(eventType.id) && !existingIds.has(eventType.duration_minutes.toString())) {
+      await createEventType(eventType)
+    }
   }
 
-  await page.waitForTimeout(1000)
-
-  const listResponse = await page.request.get(`${apiBaseUrl}/admin/event-types`)
-  const payload = await listResponse.json()
-  if (!Array.isArray(payload.items) || payload.items.length < eventTypes.length) {
-    throw new Error(`Admin event types were not created by UI setup: ${JSON.stringify(payload)}`)
+  const finalIds = await listAdminEventTypeIds()
+  const missing = eventTypes
+    .filter(
+      (eventType) =>
+        !finalIds.has(eventType.id) && !finalIds.has(eventType.duration_minutes.toString()),
+    )
+    .map((item) => item.id)
+  if (missing.length > 0) {
+    throw new Error(`Admin event types were not created by API setup: ${missing.join(', ')}`)
   }
-
-  await browser.close()
 }
